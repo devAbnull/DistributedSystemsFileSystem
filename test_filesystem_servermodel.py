@@ -22,3 +22,4 @@ assert file_system_manager.active_clients[0].id == 1
 
 # test client_exists
 assert file_system_manager.client_exists(1) == True
+assert file_system_manager.client_exists(0) == False
