@@ -78,12 +78,15 @@ class FileSystemManager:
     #
 
     def add_client(self, connection):
-        new_client_id = gen_client_id();
+        new_client_id = self.gen_client_id();
         new_client = Client(new_client_id, connection, self.root_path)
-        active_clients.push(new_client)
+        self.active_clients.append(new_client)
 
-    def remove_client(self, client):
-        active_clients.pop(client)
+    def remove_client(self, client_in):
+        i = 0
+        for client in self.active_clients:
+            if client.id == client_in.id:
+                self.active_clients.pop(i)
 
     def get_active_client(self, client_id):
         for client in self.active_clients:
