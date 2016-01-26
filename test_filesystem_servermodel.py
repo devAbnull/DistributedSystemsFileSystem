@@ -15,14 +15,26 @@ assert len(file_system_manager.active_clients) == 2
 assert file_system_manager.active_clients[1].id == 1
 
 # test removing a client
-client = file_system_manager.get_active_client(0)
+client = file_system_manager.get_active_client(1)
 file_system_manager.remove_client(client)
 assert len(file_system_manager.active_clients) == 1
-assert file_system_manager.active_clients[0].id == 1
+assert file_system_manager.active_clients[0].id == 0
 
 # test client_exists
-assert file_system_manager.client_exists(1) == True
-assert file_system_manager.client_exists(0) == False
+assert file_system_manager.client_exists(0) == True
+assert file_system_manager.client_exists(1) == False
+
+# test updating clients
+client = filesystem_servermodel.Client(0, "other_dummy_socket_data", "FileSystemDir")
+assert file_system_manager.get_active_client(0).socket == "dummy_socket_data"
+file_system_manager.update_client(client)
+assert file_system_manager.get_active_client(0).socket == "other_dummy_socket_data"
+
+file_system_manager.add_client("dummy_socket_data")
+client = filesystem_servermodel.Client(2, "other_dummy_socket_data", "FileSystemDir")
+assert file_system_manager.get_active_client(2).socket == "dummy_socket_data"
+file_system_manager.update_client(client)
+assert file_system_manager.get_active_client(2).socket == "other_dummy_socket_data"
 
 # test adding events
 file_system_manager.add_event("cd directory_1")

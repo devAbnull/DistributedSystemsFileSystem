@@ -10,35 +10,35 @@ class Client:
         self.dir_path = [path_to_root]
 
 
-        #
-        # Functions for working with directories
-        #
+    #
+    # Functions for working with directories
+    #
 
-        # Move into the passed directory
-        def change_directory( dir_name ):
-            self.dir_level = self.dir_level + 1
-            self.dir_path.push( dir_name )
+    # Move into the passed directory
+    def change_directory(self, dir_name ):
+        self.dir_level = self.dir_level + 1
+        self.dir_path.push( dir_name )
 
-        # Move up a directory level
-        # Return 0 : Success
-        # Return 1 : At top directory level
-        def move_up_directory():
-            if dir_level > 0:
-                self.dir_path.pop()
-                return 0
-            else:
-                return 1
+    # Move up a directory level
+    # Return 0 : Success
+    # Return 1 : At top directory level
+    def move_up_directory(self):
+        if dir_level > 0:
+            self.dir_path.pop()
+            return 0
+        else:
+            return 1
 
-        #
-        # Testing functions
-        #
-        def log_member_data(self):
-            print ""
-            print "dir_path: "+ (self.dir_path).__repr__()
-            print "id: %d" % self.id
-            print "dir_level: %d" % self.dir_level
-            print ""
-
+    #
+    # Testing functions
+    #
+    def log_member_data(self):
+        print ""
+        print "dir_path: " + (self.dir_path).__repr__()
+        print "socket: " + (self.socket).__repr__()
+        print "id: %d" % self.id
+        print "dir_level: %d" % self.dir_level
+        print ""
 
 class FileSystemManager:
 
@@ -87,11 +87,19 @@ class FileSystemManager:
         for client in self.active_clients:
             if client.id == client_in.id:
                 self.active_clients.pop(i)
+            i = i + 1
 
     def get_active_client(self, client_id):
         for client in self.active_clients:
             if client.id == client_id:
                 return client
+
+    def update_client(self, client_in):
+        i = 0
+        for client in self.active_clients:
+            if client.id == client_in.id:
+                self.active_clients[i] = client_in
+            i = i + 1
 
     # checks if a client exists which has the same id as the one passed in
     def client_exists(self, id_in):
@@ -121,7 +129,8 @@ class FileSystemManager:
     # Functions for moving directories
     #
 
-    def change_directory(self, directory_name):
+    def change_directory(self, directory_name, client_id):
+
         return 0
 
     def move_up_directory(self):
