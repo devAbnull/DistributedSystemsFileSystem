@@ -1,3 +1,5 @@
+import datetime
+
 class Client:
     # Initialise a new File System client
     def __init__(self, id, socket, path_to_root):
