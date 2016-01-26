@@ -105,9 +105,16 @@ class FileSystemManager:
     #
 
     def add_event(self, command):
+        new_event_id = self.gen_event_id()
+        event_timestamp = datetime.datetime.now()
+        new_event_record = (new_event_id, command, event_timestamp)
+        self.events.append(new_event_record)
         return 0
 
     def log_events(self):
+        print "EID\tTIME\t\t\t\tCOMMAND"
+        for event in self.events:
+            print "%d\t%s\t%s" % (event[0], event[2], event[1])
         return 0
 
     #
