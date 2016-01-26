@@ -7,7 +7,6 @@ class Client:
         self.socket = socket
         self.dir_level = 0
         # Path to root is the path to the root of the file_system
-        # 'FileSystemDir'
         self.dir_path = [path_to_root]
 
 
@@ -117,6 +116,9 @@ class FileSystemManager:
         return 0
 
     def release_item(item_name):
+        return 0
+
+    def check_lock(item_name):
         return 0
 
     # Traverses the list of locked items and releases locked item if
