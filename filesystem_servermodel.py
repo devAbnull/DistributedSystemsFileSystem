@@ -15,14 +15,14 @@ class Client:
         #
 
         # Move into the passed directory
-        def move_into_dir( dir_name ):
+        def change_directory( dir_name ):
             self.dir_level = self.dir_level + 1
             self.dir_path.push( dir_name )
 
         # Move up a directory level
         # Return 0 : Success
         # Return 1 : At top directory level
-        def move_up_dir():
+        def move_up_directory():
             if dir_level > 0:
                 self.dir_path.pop()
                 return 0
@@ -115,6 +115,16 @@ class FileSystemManager:
         print "EID\tTIME\t\t\t\tCOMMAND"
         for event in self.events:
             print "%d\t%s\t%s" % (event[0], event[2], event[1])
+        return 0
+
+    #
+    # Functions for moving directories
+    #
+
+    def change_directory(self, directory_name):
+        return 0
+
+    def move_up_directory(self):
         return 0
 
     #

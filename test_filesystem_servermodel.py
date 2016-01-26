@@ -34,5 +34,5 @@ assert len(file_system_manager.events) == 3
 file_system_manager.add_event("up")
 assert len(file_system_manager.events) == 4
 
-# test loggin events
+# test logging events
 file_system_manager.log_events()
