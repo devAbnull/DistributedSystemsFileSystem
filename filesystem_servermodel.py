@@ -32,9 +32,6 @@ class Client:
         #
         # Testing functions
         #
-        #
-        # Testing functions
-        #
         def log_member_data(self):
             print ""
             print "dir_path: "+ (self.dir_path).__repr__()
@@ -80,11 +77,13 @@ class FileSystemManager:
     # Functions for interacting with clients
     #
 
-    def add_client(self, socket):
-        return 0
+    def add_client(self, connection):
+        new_client_id = gen_client_id();
+        new_client = Client(new_client_id, connection, self.root_path)
+        active_clients.push(new_client)
 
     def remove_client(self, client):
-        return 0
+        active_clients.pop(client)
 
     def get_active_client(self, client_id):
         for client in self.active_clients:
