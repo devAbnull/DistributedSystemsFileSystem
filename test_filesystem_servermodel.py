@@ -19,3 +19,6 @@ client = file_system_manager.get_active_client(0)
 file_system_manager.remove_client(client)
 assert len(file_system_manager.active_clients) == 1
 assert file_system_manager.active_clients[0].id == 1
+
+# test client_exists
+assert file_system_manager.client_exists(1) == True
