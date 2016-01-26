@@ -8,9 +8,8 @@ import chatroom_manager
 # global threadpool for server
 server_thread_pool = threadpool.ThreadPool(500)
 
-port_number = 8080#int(sys.argv[1])
+port_number = 8080
 
-#ip_address = '46.101.47.238'
 ip_address = socket.gethostbyname(socket.gethostname())
 
 current_chatroom_manager = chatroom_manager.ChatroomManager(port_number)
@@ -18,7 +17,6 @@ current_chatroom_manager = chatroom_manager.ChatroomManager(port_number)
 def create_server_socket():
     # create socket  and initialise to localhost:8000
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #server_address = ('', port_number)
     server_address = ('127.0.0.1', port_number)
 
     print "starting up on %s port %s\n" % server_address
