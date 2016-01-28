@@ -12,7 +12,6 @@ class Client:
         # Path to root is the path to the root of the file_system
         self.dir_path = [path_to_root]
 
-
     #
     # Functions for working with directories
     #
@@ -367,10 +366,19 @@ class FileSystemManager:
             return 0
 
     # remove directory
+    # return -1 : directory doesn't exist
     # return 0 : successfull
     # return 1 : is a file
     # return 2 : directory has locked contents
     def remove_directory(self, client_id, directory_name):
+        path = self.resolve_path(client_id, directory_name)
+        item_type = self.item_exists(client_id, directory_name)
+        if item_type == -1:
+            return -1
+        elif item_type == 0:
+            return 1
+        elif item_type == 1:
+
         return 0
 
     #
