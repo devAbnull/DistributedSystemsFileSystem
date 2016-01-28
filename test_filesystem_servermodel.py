@@ -116,5 +116,9 @@ assert file_system_manager.item_exists(3, "no_file") == False
 # Test reading file
 assert file_system_manager.read_item(3, "test_file1") == "hello this is a test file\n"
 
+# write_item
+file_system_manager.write_item(3, "test_file2", "I smell")
+assert file_system_manager.read_item(3, "test_file2") == "I smell"
+
 # test logging events
 file_system_manager.log_events()

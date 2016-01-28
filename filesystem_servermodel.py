@@ -258,13 +258,14 @@ class FileSystemManager:
         if lock_res == 1:
             return 1
         # write to it
-        file = open(item_name, 'w+')
+        file_path = self.resolve_path(client_id, item_name)
+        file = open(file_path, 'w+')
         file.truncate()
         file.write(file_contents)
+        # add write event
+        self.add_event("write " + file_path)
         # release it
         self.release_item(client, item_name)
-        # add event
-        self.add_event("write " + file_path)
         return 0
 
     # disconnect client from server
