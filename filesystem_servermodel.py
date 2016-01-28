@@ -152,12 +152,13 @@ class FileSystemManager:
 
     # Passed the name of an item this function returns the path
     # to that item
-    def resolve_path(self, name):
-        return 0
-
-    # Returns whether or not a passed file path has a corresponding file
-    def item_exists(self, path):
-        return True
+    def resolve_path(self, client_id, item_name):
+        client = self.get_active_client(client_id)
+        file_path = ""
+        for path_element in client.dir_path:
+            file_path = file_path + "%s/" % path_element
+        file_path = file_path + item_name
+        return file_path
 
     #
     # Functions for interacting with locking
@@ -166,8 +167,9 @@ class FileSystemManager:
     # Locks an item if it is not locked
     # Return 0 : Item was locked
     # Return 1 : Item was not locked
-    def lock_item(self, client, file_path):
-        if self.check_lock(file_path) ==  True:
+    def lock_item(self, client, item_name):
+        file_path = self.resolve_path(client.id, item_name)
+        if self.check_lock(client, file_path) ==  True:
             return 1
         else:
             lock_timestamp = datetime.datetime.now()
@@ -177,23 +179,21 @@ class FileSystemManager:
             return 0
 
     # Unlocks an item if it was locked
-    # Return 0 : Item was released
-    # Return 1 : Item was not released
-    def release_item(self, client, file_path):
+    def release_item(self, client, item_name):
+        file_path = self.resolve_path(client.id, item_name)
         i = 0
         for locked_file in self.locked_files:
             if file_path == locked_file[2]:
                 if client.id == locked_file[0]:
                     self.locked_files.pop(i)
                     self.add_event("release " + file_path)
-                    return 0
             i = i + 1
-        return 1
 
     # Checks if an item is locked
     # Return True : Item is locked
     # Returns False : Item is not locked
-    def check_lock(self, file_path):
+    def check_lock(self, client, item_name):
+        file_path = self.resolve_path(client.id, item_name)
         for locked_file in self.locked_files:
             if locked_file[2] == file_path:
                 return True
@@ -217,6 +217,63 @@ class FileSystemManager:
         print "LID\tTIME\t\t\t\tPATH"
         for locked_file in self.locked_files:
             print "%d\t%s\t%s" % locked_file
+
+    #
+    # Functions for interacting with items
+    #
+
+    # Returns whether or not a passed file path has a corresponding file
+    def item_exists(self, client_id, item_name):
+        file_path = self.resolve_path(client_id, item_name)
+        try:
+            open(file_path)
+        except IOError:
+            return False
+        return True
+
+    # returns the contents of a file as a string#
+    # Return 0 : Item read successfully
+    # Return 1 : Item doesn't exist
+    def read_item(self, client_id, item_name):
+        # check if item exists
+        item_exists = self.item_exists(client_id, item_name)
+        if item_exists == False:
+            return "%s doesn't exist"
+        else:
+            # read item
+            file_path = self.resolve_path(client_id, item_name)
+            file = open(file_path, 'r')
+            file_contents = file.read()
+            # add event
+            self.add_event("read " + file_path)
+            return file_contents
+
+    # Writes a passed string to a file with a passed name
+    # Return 0 : Write successfull
+    # Return 1 : Write unsuccessfull, File locked
+    def write_item(self, client_id, item_name, file_contents):
+        # lock_item
+        client = self.get_active_client(client_id)
+        lock_res = self.lock_item(client, item_name)
+        if lock_res == 1:
+            return 1
+        # write to it
+        file = open(item_name, 'w+')
+        file.truncate()
+        file.write(file_contents)
+        # release it
+        self.release_item(client, item_name)
+        # add event
+        self.add_event("write " + file_path)
+        return 0
+
+    # disconnect client from server
+    def exit(connection, client_id):
+        # get client
+        # remove client from active clients
+        # disconnect socket
+        # add event
+        return 0
 
     #
     # Testing functions

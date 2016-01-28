@@ -82,7 +82,9 @@ assert len(client.dir_path) == 1
 assert client.dir_path[0] == "FileSystemDir"
 
 # test locking
-assert file_system_manager.check_lock("item1") == False
+client = file_system_manager.get_active_client(3)
+client1 = file_system_manager.get_active_client(4)
+assert file_system_manager.check_lock(client, "item1") == False
 client = file_system_manager.get_active_client(3)
 file_system_manager.add_client("dummy_socket_data")
 client1 = file_system_manager.get_active_client(4)
@@ -90,14 +92,29 @@ file_system_manager.lock_item(client, "item1")
 file_system_manager.lock_item(client, "item2")
 file_system_manager.lock_item(client1, "item3")
 file_system_manager.lock_item(client1, "item4")
-assert file_system_manager.check_lock("item1") == True
-file_system_manager.log_locks()
+assert file_system_manager.check_lock(client, "item1") == True
+#file_system_manager.log_locks()
 file_system_manager.release_item(client, "item1")
-assert file_system_manager.check_lock("item1") == False
-file_system_manager.log_locks()
+assert file_system_manager.check_lock(client, "item1") == False
+#file_system_manager.log_locks()
 file_system_manager.remove_client(client1)
 #file_system_manager.auto_release()
 #file_system_manager.log_locks()
 
+# Test path resolution
+file_system_manager.change_directory("directory_1", 3)
+file_system_manager.change_directory("directory_2", 3)
+assert file_system_manager.resolve_path(3, "test_item") == "FileSystemDir/directory_1/directory_2/test_item"
+file_system_manager.move_up_directory(3)
+file_system_manager.move_up_directory(3)
+assert file_system_manager.resolve_path(3, "test_item") == "FileSystemDir/test_item"
+
+# Test file_exists function
+assert file_system_manager.item_exists(3, "test_file1") == True
+assert file_system_manager.item_exists(3, "no_file") == False
+
+# Test reading file
+assert file_system_manager.read_item(3, "test_file1") == "hello this is a test file\n"
+
 # test logging events
-# file_system_manager.log_events()
+file_system_manager.log_events()
