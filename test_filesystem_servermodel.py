@@ -137,5 +137,12 @@ file_system_manager.release_item(client, "test_file1")
 file_system_manager.delete_file(3, "test_file1") == 0
 assert file_system_manager.read_item(3, "test_file1") == "test_file1 doesn't exist"
 
+# mkdir
+assert file_system_manager.make_directory(3, "new_test_directory") == 0
+os.rmdir("FileSystemDir/new_test_directory")
+assert file_system_manager.make_directory(3, "item1") == 1
+assert file_system_manager.make_directory(3, "directory_1") == 2
+
+
 # test logging events
 file_system_manager.log_events()
