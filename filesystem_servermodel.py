@@ -1,4 +1,6 @@
 import datetime
+import threadpool
+import time
 
 class Client:
     # Initialise a new File System client
@@ -17,14 +19,15 @@ class Client:
     # Move into the passed directory
     def change_directory(self, dir_name ):
         self.dir_level = self.dir_level + 1
-        self.dir_path.push( dir_name )
+        self.dir_path.append( dir_name )
 
     # Move up a directory level
     # Return 0 : Success
     # Return 1 : At top directory level
     def move_up_directory(self):
-        if dir_level > 0:
+        if self.dir_level > 0:
             self.dir_path.pop()
+            self.dir_level = self.dir_level - 1
             return 0
         else:
             return 1
@@ -54,12 +57,20 @@ class FileSystemManager:
     events = []
 
     # List of the paths of currently locked files
-    # ( path, client_id, time )
+    # ( client_id, time, path )
     locked_files = []
+
+    # ThreadPool will contain threads managing the autorelease
+    # of locks
+    file_system_manager_threadpool = threadpool.ThreadPool(1)
 
     # Create new File System Manager and initialise the root
     def __init__(self, root_path):
         self.root_path = root_path
+        #Add autorelease function to a new thread
+        self.file_system_manager_threadpool.add_task(
+            self.auto_release
+        )
 
     # Generate a client ID and update next_client_id
     def gen_client_id(self):
@@ -117,45 +128,95 @@ class FileSystemManager:
         event_timestamp = datetime.datetime.now()
         new_event_record = (new_event_id, command, event_timestamp)
         self.events.append(new_event_record)
-        return 0
 
     def log_events(self):
         print "EID\tTIME\t\t\t\tCOMMAND"
         for event in self.events:
             print "%d\t%s\t%s" % (event[0], event[2], event[1])
-        return 0
 
     #
     # Functions for moving directories
     #
 
-    def change_directory(self, directory_name, client_id):
+    def change_directory(self, dir_name, client_id):
+        client = self.get_active_client(client_id)
+        client.change_directory(dir_name)
+        self.update_client(client)
+        self.add_event("cd " + dir_name)
 
+    def move_up_directory(self, client_id):
+        client = self.get_active_client(client_id)
+        client.move_up_directory()
+        self.update_client(client)
+        self.add_event("up")
+
+    # Passed the name of an item this function returns the path
+    # to that item
+    def resolve_path(self, name):
         return 0
 
-    def move_up_directory(self):
-        return 0
+    # Returns whether or not a passed file path has a corresponding file
+    def item_exists(self, path):
+        return True
 
     #
     # Functions for interacting with locking
     #
 
-    def lock_item(client, item_name):
-        return 0
+    # Locks an item if it is not locked
+    # Return 0 : Item was locked
+    # Return 1 : Item was not locked
+    def lock_item(self, client, file_path):
+        if self.check_lock(file_path) ==  True:
+            return 1
+        else:
+            lock_timestamp = datetime.datetime.now()
+            lock_record = (client.id, lock_timestamp, file_path)
+            self.locked_files.append(lock_record)
+            self.add_event("lock " + file_path)
+            return 0
 
-    def release_item(item_name):
-        return 0
+    # Unlocks an item if it was locked
+    # Return 0 : Item was released
+    # Return 1 : Item was not released
+    def release_item(self, client, file_path):
+        i = 0
+        for locked_file in self.locked_files:
+            if file_path == locked_file[2]:
+                if client.id == locked_file[0]:
+                    self.locked_files.pop(i)
+                    self.add_event("release " + file_path)
+                    return 0
+            i = i + 1
+        return 1
 
-    def check_lock(item_name):
-        return 0
+    # Checks if an item is locked
+    # Return True : Item is locked
+    # Returns False : Item is not locked
+    def check_lock(self, file_path):
+        for locked_file in self.locked_files:
+            if locked_file[2] == file_path:
+                return True
+        return False
 
     # Traverses the list of locked items and releases locked item if
     # client does not exist
+    # Run in a thread initialized in the __init__ function
     def auto_release(self):
-        return 0
+        while True:
+            # auto release occurs every minute
+            time.sleep(60)
+            new_locked_file_list = []
+            for locked_file in self.locked_files:
+                for client in self.active_clients:
+                    if locked_file[0] == client.id:
+                        new_locked_file_list.append(locked_file)
+            self.locked_files = new_locked_file_list
 
     def log_locks(self):
-        return 0
+        print "LID\tTIME\t\t\t\tPATH"
+        for locked_file in self.locked_files:
+            print "%d\t%s\t%s" % locked_file
 
     #
     # Testing functions

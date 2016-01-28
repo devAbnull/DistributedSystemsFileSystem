@@ -46,5 +46,58 @@ assert len(file_system_manager.events) == 3
 file_system_manager.add_event("up")
 assert len(file_system_manager.events) == 4
 
+# test moving directories
+# client id will be 3
+file_system_manager.add_client("dummy_socket_data")
+client = file_system_manager.get_active_client(3)
+assert client.dir_level == 0
+assert len(client.dir_path) == 1
+assert client.dir_path[0] == "FileSystemDir"
+file_system_manager.change_directory("directory_1", 3)
+client = file_system_manager.get_active_client(3)
+assert client.dir_level == 1
+assert len(client.dir_path) == 2
+assert client.dir_path[1] == "directory_1"
+file_system_manager.change_directory("directory_2", 3)
+client = file_system_manager.get_active_client(3)
+assert client.dir_level == 2
+assert len(client.dir_path) == 3
+assert client.dir_path[2] == "directory_2"
+
+# Tesing moving up directory levels
+file_system_manager.move_up_directory(3)
+client = file_system_manager.get_active_client(3)
+assert client.dir_level == 1
+assert len(client.dir_path) == 2
+assert client.dir_path[1] == "directory_1"
+file_system_manager.move_up_directory(3)
+client = file_system_manager.get_active_client(3)
+assert client.dir_level == 0
+assert len(client.dir_path) == 1
+assert client.dir_path[0] == "FileSystemDir"
+file_system_manager.move_up_directory(3)
+client = file_system_manager.get_active_client(3)
+assert client.dir_level == 0
+assert len(client.dir_path) == 1
+assert client.dir_path[0] == "FileSystemDir"
+
+# test locking
+assert file_system_manager.check_lock("item1") == False
+client = file_system_manager.get_active_client(3)
+file_system_manager.add_client("dummy_socket_data")
+client1 = file_system_manager.get_active_client(4)
+file_system_manager.lock_item(client, "item1")
+file_system_manager.lock_item(client, "item2")
+file_system_manager.lock_item(client1, "item3")
+file_system_manager.lock_item(client1, "item4")
+assert file_system_manager.check_lock("item1") == True
+file_system_manager.log_locks()
+file_system_manager.release_item(client, "item1")
+assert file_system_manager.check_lock("item1") == False
+file_system_manager.log_locks()
+file_system_manager.remove_client(client1)
+#file_system_manager.auto_release()
+#file_system_manager.log_locks()
+
 # test logging events
-file_system_manager.log_events()
+# file_system_manager.log_events()
