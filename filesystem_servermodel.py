@@ -120,6 +120,19 @@ class FileSystemManager:
                 return True
         return False
 
+    # disconnect client from server
+    def disconnect_client(connection, client_id):
+        # get client
+        client = self.get_active_client(client_id)
+        # remove client from active clients
+        self.remove_client(client)
+        # disconnect socket
+        print "\nClient %s Disconnected\n" % str(client_id)
+        connection.close()
+        # add event
+        self.add_event("disconnect client %d" % client_id)
+        return 0
+
     #
     # Functions for interacting with events
     #
@@ -178,9 +191,17 @@ class FileSystemManager:
 
     # Locks an item if it is not locked
     # Return 0 : Item was locked
-    # Return 1 : Item was not locked
+    # Return 1 : Item was already locked
+    # Return 2 : Item doesn't exist
+    # Return 3 : Item is a directory
     def lock_item(self, client, item_name):
         file_path = self.resolve_path(client.id, item_name)
+        # if item is not a file or doesnt exist exit
+        item_type = self.item_exists(client.id, item_name)
+        if item_type == -1:
+            return 2
+        elif item_type == 1:
+            return 3
         if self.check_lock(client, file_path) ==  True:
             return 1
         else:
@@ -281,6 +302,7 @@ class FileSystemManager:
         # lock_item
         client = self.get_active_client(client_id)
         lock_res = self.lock_item(client, item_name)
+        # Exit if file is locked
         if lock_res == 1:
             return 1
         # write to it
@@ -290,6 +312,9 @@ class FileSystemManager:
         file.write(file_contents)
         # add write event
         self.add_event("write " + file_path)
+        # If item had previously never existed
+        if lock_res == 2:
+            return 0
         # release it
         self.release_item(client, item_name)
         return 0
@@ -300,14 +325,26 @@ class FileSystemManager:
     # Return 2 : Delete unsuccessfull, File is a Directory
     # Return 3 : Delete unsuccessfull, File Doesn't exist
     def delete_file(self, client_id, item_name):
-        return 0
-
-    # disconnect client from server
-    def exit(connection, client_id):
-        # get client
-        # remove client from active clients
-        # disconnect socket
-        # add event
+        item_type = self.item_exists(client_id, item_name)
+        # exit if the item does not exist
+        if item_type == -1:
+            return 3
+        # exit if the item is a directory
+        if item_type == 1:
+            return 2
+        # lock_item
+        client = self.get_active_client(client_id)
+        lock_res = self.lock_item(client, item_name)
+        # Exit if file is locked
+        if lock_res == 1:
+            return 1
+        # delete file
+        file_path = self.resolve_path(client_id, item_name)
+        os.remove(file_path)
+        # add delete event
+        self.add_event("delete " + file_path)
+        # release it
+        self.release_item(client, item_name)
         return 0
 
     #

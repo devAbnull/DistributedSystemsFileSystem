@@ -1,3 +1,4 @@
+import os
 import filesystem_servermodel
 
 # initialise file system manager
@@ -97,7 +98,7 @@ assert file_system_manager.check_lock(client, "item1") == True
 file_system_manager.release_item(client, "item1")
 assert file_system_manager.check_lock(client, "item1") == False
 #file_system_manager.log_locks()
-file_system_manager.remove_client(client1)
+#file_system_manager.remove_client(client1)
 #file_system_manager.auto_release()
 #file_system_manager.log_locks()
 
@@ -111,6 +112,7 @@ file_system_manager.move_up_directory(3)
 assert file_system_manager.resolve_path(3, "test_item") == "FileSystemDir/test_item"
 
 # Test item_exists function
+file_system_manager.write_item(3, "test_file1", "hello this is a test file\n")
 assert file_system_manager.item_exists(3, "test_file1") == 0
 assert file_system_manager.item_exists(3, "no_file") == -1
 
@@ -124,6 +126,16 @@ file_system_manager.write_item(3, "test_file2", "I smell")
 assert file_system_manager.read_item(3, "test_file2") == "I smell"
 file_system_manager.write_item(3, "directory_1", "I smell")
 assert file_system_manager.read_item(3, "directory_1") == "directory_1 is a directory"
+
+#delete file
+client = file_system_manager.get_active_client(3)
+file_system_manager.lock_item(client, "test_file1")
+file_system_manager.delete_file(3, "test_file1") == 1
+file_system_manager.delete_file(3, "directory_1") == 2
+file_system_manager.delete_file(3, "no_file") == 3
+file_system_manager.release_item(client, "test_file1")
+file_system_manager.delete_file(3, "test_file1") == 0
+assert file_system_manager.read_item(3, "test_file1") == "test_file1 doesn't exist"
 
 # test logging events
 file_system_manager.log_events()
