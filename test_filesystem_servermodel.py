@@ -104,21 +104,26 @@ file_system_manager.remove_client(client1)
 # Test path resolution
 file_system_manager.change_directory("directory_1", 3)
 file_system_manager.change_directory("directory_2", 3)
+file_system_manager.change_directory("directory_3", 3)
 assert file_system_manager.resolve_path(3, "test_item") == "FileSystemDir/directory_1/directory_2/test_item"
 file_system_manager.move_up_directory(3)
 file_system_manager.move_up_directory(3)
 assert file_system_manager.resolve_path(3, "test_item") == "FileSystemDir/test_item"
 
-# Test file_exists function
-assert file_system_manager.item_exists(3, "test_file1") == True
-assert file_system_manager.item_exists(3, "no_file") == False
+# Test item_exists function
+assert file_system_manager.item_exists(3, "test_file1") == 0
+assert file_system_manager.item_exists(3, "no_file") == -1
 
 # Test reading file
 assert file_system_manager.read_item(3, "test_file1") == "hello this is a test file\n"
+assert file_system_manager.read_item(3, "directory_1") == "directory_1 is a directory"
+assert file_system_manager.read_item(3, "no_file") == "no_file doesn't exist"
 
 # write_item
 file_system_manager.write_item(3, "test_file2", "I smell")
 assert file_system_manager.read_item(3, "test_file2") == "I smell"
+file_system_manager.write_item(3, "directory_1", "I smell")
+assert file_system_manager.read_item(3, "directory_1") == "directory_1 is a directory"
 
 # test logging events
 file_system_manager.log_events()

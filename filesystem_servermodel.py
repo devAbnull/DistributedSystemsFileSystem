@@ -1,6 +1,7 @@
 import datetime
 import threadpool
 import time
+import os
 
 class Client:
     # Initialise a new File System client
@@ -138,11 +139,22 @@ class FileSystemManager:
     # Functions for moving directories
     #
 
+    # Changes directory
+    # Return 0 : Change successfull
+    # Return 1 : Directory doesn't exist
     def change_directory(self, dir_name, client_id):
         client = self.get_active_client(client_id)
+        # Check if directory exists
+        new_dir_path = self.resolve_path(client_id, dir_name)
+        is_dir_val = os.path.isdir("./" + new_dir_path)
+        # Exit if directory does not exist
+        if is_dir_val == False:
+            return 1
+        # Change directory if it does
         client.change_directory(dir_name)
         self.update_client(client)
         self.add_event("cd " + dir_name)
+        return 0
 
     def move_up_directory(self, client_id):
         client = self.get_active_client(client_id)
@@ -223,23 +235,32 @@ class FileSystemManager:
     #
 
     # Returns whether or not a passed file path has a corresponding file
+    # Return -1 : Item doesnt exist
+    # Return 0 : Item exists as file
+    # Return 1 : Item exists as directory
+
     def item_exists(self, client_id, item_name):
         file_path = self.resolve_path(client_id, item_name)
-        try:
-            open(file_path)
-        except IOError:
-            return False
-        return True
+        is_file = os.path.isfile("./"+file_path)
+        if is_file == True:
+            return 0
+        is_dir = os.path.isdir("./"+file_path)
+        if is_dir == True:
+            return 1
+        else:
+            return -1
 
-    # returns the contents of a file as a string#
+    # Returns the contents of a file as a string#
     # Return 0 : Item read successfully
     # Return 1 : Item doesn't exist
     def read_item(self, client_id, item_name):
         # check if item exists
-        item_exists = self.item_exists(client_id, item_name)
-        if item_exists == False:
-            return "%s doesn't exist"
-        else:
+        item_type = self.item_exists(client_id, item_name)
+        if item_type == -1:
+            return "%s doesn't exist" % item_name
+        elif item_type == 1:
+            return "%s is a directory" % item_name
+        elif item_type == 0:
             # read item
             file_path = self.resolve_path(client_id, item_name)
             file = open(file_path, 'r')
@@ -251,7 +272,12 @@ class FileSystemManager:
     # Writes a passed string to a file with a passed name
     # Return 0 : Write successfull
     # Return 1 : Write unsuccessfull, File locked
+    # Return 2 : Write unsuccessfull, File is a directory
     def write_item(self, client_id, item_name, file_contents):
+        item_type = self.item_exists(client_id, item_name)
+        # exit if the item is a directory
+        if item_type == 1:
+            return 2
         # lock_item
         client = self.get_active_client(client_id)
         lock_res = self.lock_item(client, item_name)
@@ -266,6 +292,14 @@ class FileSystemManager:
         self.add_event("write " + file_path)
         # release it
         self.release_item(client, item_name)
+        return 0
+
+    # Deletes a file
+    # Return 0 : Delete successfull
+    # Return 1 : Delete unsuccessfull, File locked
+    # Return 2 : Delete unsuccessfull, File is a Directory
+    # Return 3 : Delete unsuccessfull, File Doesn't exist
+    def delete_file(self, client_id, item_name):
         return 0
 
     # disconnect client from server
