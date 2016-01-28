@@ -143,6 +143,20 @@ os.rmdir("FileSystemDir/new_test_directory")
 assert file_system_manager.make_directory(3, "item1") == 1
 assert file_system_manager.make_directory(3, "directory_1") == 2
 
+# rmdir
+file_system_manager.make_directory(3, "new_test_directory1")
+assert file_system_manager.remove_directory(3, "new_test_directory1") == 0
+assert file_system_manager.remove_directory(3, "new_other_test_directory1") == -1
+assert file_system_manager.remove_directory(3, "item1") == 1
 
-# test logging events
-file_system_manager.log_events()
+file_system_manager.change_directory("directory_1", 3)
+file_system_manager.change_directory("directory_2", 3)
+file_system_manager.write_item(3, "test_file2", "I smell")
+client = file_system_manager.get_active_client(3)
+file_system_manager.lock_item(client, "test_file2")
+file_system_manager.move_up_directory(3)
+assert file_system_manager.remove_directory(3, "directory_2") == 2
+file_system_manager.release_item(client, "directory_2/test_file2")
+
+#test logging events
+#file_system_manager.log_events()

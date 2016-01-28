@@ -2,6 +2,7 @@ import datetime
 import threadpool
 import time
 import os
+import shutil
 
 class Client:
     # Initialise a new File System client
@@ -141,6 +142,7 @@ class FileSystemManager:
         event_timestamp = datetime.datetime.now()
         new_event_record = (new_event_id, command, event_timestamp)
         self.events.append(new_event_record)
+        print "%d\t%s\t%s" % (new_event_record[0], new_event_record[2], new_event_record[1])
 
     def log_events(self):
         print "EID\tTIME\t\t\t\tCOMMAND"
@@ -378,8 +380,16 @@ class FileSystemManager:
         elif item_type == 0:
             return 1
         elif item_type == 1:
-
-        return 0
+            directory_has_locked_elements = False
+            for lock_record in self.locked_files:
+                if lock_record[2][0:len(path)] == path:
+                    directory_has_locked_elements = True
+            if directory_has_locked_elements:
+                return 2
+            else:
+                shutil.rmtree(path)
+                self.add_event("rmdir " + path)
+                return 0
 
     #
     # Testing functions
