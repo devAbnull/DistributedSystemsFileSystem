@@ -125,13 +125,14 @@ assert file_system_manager.item_exists(3, "test_file1") == 0
 assert file_system_manager.item_exists(3, "no_file") == -1
 
 # Test reading file
-assert file_system_manager.read_item(3, "test_file1") == "hello this is a test file\n"
+current_path = file_system_manager.resolve_path(3, "")
+assert file_system_manager.read_item(3, "test_file1") == "%stest_file1////hello this is a test file\n" % current_path
 assert file_system_manager.read_item(3, "directory_1") == "directory_1 is a directory"
 assert file_system_manager.read_item(3, "no_file") == "no_file doesn't exist"
 
 # write_item
 file_system_manager.write_item(3, "test_file2", "I smell")
-assert file_system_manager.read_item(3, "test_file2") == "I smell"
+assert file_system_manager.read_item(3, "test_file2") == "%stest_file2////I smell" % current_path
 file_system_manager.write_item(3, "directory_1", "I smell")
 assert file_system_manager.read_item(3, "directory_1") == "directory_1 is a directory"
 

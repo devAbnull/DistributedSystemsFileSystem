@@ -208,6 +208,15 @@ class FileSystemManager:
         file_path = file_path + item_name
         return file_path
 
+    # Passed the name of an item this function returns the path
+    # to that item
+    def get_working_dir(self, client_id):
+        client = self.get_active_client(client_id)
+        file_path = ""
+        for path_element in client.dir_path:
+            file_path = file_path + "%s/" % path_element
+        return file_path
+
     #
     # Functions for interacting with locking
     #
@@ -301,7 +310,7 @@ class FileSystemManager:
         else:
             return -1
 
-    # Returns the contents of a file as a string#
+    # Returns the path and contents of a file as a string
     def read_item(self, client_id, item_name):
         # check if item exists
         item_type = self.item_exists(client_id, item_name)
@@ -316,7 +325,8 @@ class FileSystemManager:
             file_contents = file.read()
             # add event
             self.add_event("read " + file_path)
-            return file_contents
+            return_string = "%s////%s" % (file_path, file_contents)
+            return return_string
 
     # Writes a passed string to a file with a passed name
     # Return 0 : Write successfull

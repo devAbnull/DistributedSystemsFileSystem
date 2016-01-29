@@ -63,6 +63,8 @@ def start_client_interaction(connection, client_address):
                 mkdir(connection, split_data, client_id)
             elif split_data[0] == "rmdir":
                 rmdir(connection, split_data, client_id)
+            elif split_data[0] == "pwd":
+                pwd(connection, split_data, client_id)
             elif split_data[0] == "exit":
                 exit(connection, split_data, client_id)
             else:
@@ -208,6 +210,13 @@ def rmdir(connection, split_data, client_id):
             response = "%s is a file" % split_data[1]
         elif res == 2:
             response = "directory has locked contents"
+        connection.sendall(response)
+    else:
+        error_response(connection, 1)
+
+def pwd(connection, split_data, client_id):
+    if len(split_data) == 1:
+        response = file_system_manager.get_working_dir(client_id)
         connection.sendall(response)
     else:
         error_response(connection, 1)
