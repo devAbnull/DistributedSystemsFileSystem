@@ -176,6 +176,26 @@ class FileSystemManager:
         self.update_client(client)
         self.add_event("up")
 
+    # Lists contents of directory
+    # returns response string
+    def list_directory_contents(self, client_id, item_name = ""):
+        path = self.resolve_path(client_id, item_name)
+        item_type = self.item_exists(client_id, item_name)
+        if item_type == -1:
+            return "No such directory %s" % item_name
+        elif item_type == 0:
+            return "Cannot list contents of %s" % item_name
+        elif item_type == 1:
+            item_list = os.listdir("./" + path)
+            return_string = "Type\tPath"
+            for item in item_list:
+                list_item_type = self.item_exists(client_id, item)
+                if list_item_type == 0:
+                    return_string = return_string + "\n" + "f\t" + item
+                elif list_item_type == 1:
+                    return_string = return_string + "\n" + "d\t" + item
+            return return_string
+
     # Passed the name of an item this function returns the path
     # to that item
     def resolve_path(self, client_id, item_name):
