@@ -37,7 +37,19 @@ def get_server_response(socket):
 
 def generate_message(input):
     split_input = input.split(" ")
-    return '////'.join(split_input)
+    if split_input[0] == "write":
+        if len(split_input) != 2:
+            print "unrecognised command"
+            return ""
+        try:
+            file = open(split_input[1])
+            file_contents = file.read()
+            return "%s////%s////%s" % (split_input[0], split_input[1], file_contents)
+        except IOError:
+            print "no such file in source directory"
+            return ""
+    else:
+        return '////'.join(split_input)
 
 if __name__ == '__main__':
     # Main line for program
