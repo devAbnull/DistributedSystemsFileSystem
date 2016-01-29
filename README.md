@@ -36,3 +36,5 @@ Features the following
     - Items being written to or deleted require a lock
     - Locks are stored in a list on the server
     - A thread has the task of checking that all of the locks have an owner who is active on the server. This process runs every minute.
+  - Logging
+    - All events are logged on the server and can be viewed
