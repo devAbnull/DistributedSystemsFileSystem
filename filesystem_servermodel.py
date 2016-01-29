@@ -130,11 +130,10 @@ class FileSystemManager:
         # remove client from active clients
         self.remove_client(client)
         # disconnect socket
-        print "\nClient %s Disconnected\n" % str(client_id)
+        connection.sendall("disconnected")
         connection.close()
         # add event
         self.add_event("disconnect client %d" % client_id)
-        return 0
 
     #
     # Functions for interacting with events
@@ -226,7 +225,7 @@ class FileSystemManager:
             return 2
         elif item_type == 1:
             return 3
-        if self.check_lock(client, file_path) ==  True:
+        if self.check_lock(client, item_name) ==  True:
             return 1
         else:
             lock_timestamp = datetime.datetime.now()
@@ -239,12 +238,18 @@ class FileSystemManager:
     def release_item(self, client, item_name):
         file_path = self.resolve_path(client.id, item_name)
         i = 0
+        item_released = False
         for locked_file in self.locked_files:
             if file_path == locked_file[2]:
                 if client.id == locked_file[0]:
                     self.locked_files.pop(i)
                     self.add_event("release " + file_path)
+                    item_released = True
             i = i + 1
+        if item_released:
+            return 0
+        else:
+            return -1
 
     # Checks if an item is locked
     # Return True : Item is locked
@@ -269,6 +274,7 @@ class FileSystemManager:
                     if locked_file[0] == client.id:
                         new_locked_file_list.append(locked_file)
             self.locked_files = new_locked_file_list
+            self.add_event("lock auto-release")
 
     def log_locks(self):
         print "LID\tTIME\t\t\t\tPATH"

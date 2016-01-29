@@ -24,7 +24,7 @@ def connect_to_server_userin():
 
     while True:
         user_in = raw_input()
-        message = user_in
+        message = generate_message(user_in)
         sock.send( message )
 
     sock.close()
@@ -34,6 +34,10 @@ def get_server_response(socket):
         data = socket.recv( 1024 )
         if (data != None):
             print data
+
+def generate_message(input):
+    split_input = input.split(" ")
+    return '////'.join(split_input)
 
 if __name__ == '__main__':
     # Main line for program

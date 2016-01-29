@@ -83,24 +83,32 @@ assert len(client.dir_path) == 1
 assert client.dir_path[0] == "FileSystemDir"
 
 # test locking
+file_system_manager.write_item(3, "item1", "asdfasdfasdf")
+file_system_manager.write_item(3, "item2", "asdfasdfasdf")
+file_system_manager.write_item(3, "item3", "asdfasdfasdf")
+file_system_manager.write_item(3, "item4", "asdfasdfasdf")
 client = file_system_manager.get_active_client(3)
 client1 = file_system_manager.get_active_client(4)
 assert file_system_manager.check_lock(client, "item1") == False
 client = file_system_manager.get_active_client(3)
 file_system_manager.add_client("dummy_socket_data")
 client1 = file_system_manager.get_active_client(4)
-file_system_manager.lock_item(client, "item1")
-file_system_manager.lock_item(client, "item2")
-file_system_manager.lock_item(client1, "item3")
-file_system_manager.lock_item(client1, "item4")
+assert file_system_manager.lock_item(client, "item1") == 0
+assert file_system_manager.lock_item(client, "item2") == 0
+assert file_system_manager.lock_item(client1, "item3") == 0
+assert file_system_manager.lock_item(client1, "item4") == 0
 assert file_system_manager.check_lock(client, "item1") == True
-#file_system_manager.log_locks()
+assert file_system_manager.check_lock(client, "item2") == True
+assert file_system_manager.check_lock(client, "item3") == True
+assert file_system_manager.check_lock(client, "item4") == True
+assert file_system_manager.lock_item(client, "item1") == 1
+assert file_system_manager.lock_item(client, "item2") == 1
+assert file_system_manager.lock_item(client1, "item3") == 1
+assert file_system_manager.lock_item(client1, "item4") == 1
 file_system_manager.release_item(client, "item1")
 assert file_system_manager.check_lock(client, "item1") == False
-#file_system_manager.log_locks()
 #file_system_manager.remove_client(client1)
 #file_system_manager.auto_release()
-#file_system_manager.log_locks()
 
 # Test path resolution
 file_system_manager.change_directory("directory_1", 3)
