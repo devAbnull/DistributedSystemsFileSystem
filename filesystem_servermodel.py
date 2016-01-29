@@ -296,8 +296,6 @@ class FileSystemManager:
             return -1
 
     # Returns the contents of a file as a string#
-    # Return 0 : Item read successfully
-    # Return 1 : Item doesn't exist
     def read_item(self, client_id, item_name):
         # check if item exists
         item_type = self.item_exists(client_id, item_name)

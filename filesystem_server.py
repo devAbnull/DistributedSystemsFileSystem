@@ -49,6 +49,8 @@ def start_client_interaction(connection, client_address):
                 cd(connection, split_data, client_id)
             elif split_data[0] == "up":
                 up(connection, split_data, client_id)
+            elif split_data[0] == "read":
+                read(connection, split_data, client_id)
             else:
                 error_response(connection, 1)
     except:
@@ -88,6 +90,13 @@ def cd(connection, split_data, client_id):
 def up(connection, split_data, client_id):
     if len(split_data) == 1:
         file_system_manager.move_up_directory(client_id)
+    else:
+        error_response(connection, 1)
+
+def read(connection, split_data, client_id):
+    if len(split_data) == 2:
+        response = read_item(client_id, split_data[1])
+        connection.sendall(response)
     else:
         error_response(connection, 1)
 
