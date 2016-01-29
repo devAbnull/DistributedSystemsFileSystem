@@ -159,10 +159,12 @@ assert file_system_manager.remove_directory(3, "directory_2") == 2
 file_system_manager.release_item(client, "directory_2/test_file2")
 
 # test listing
-file_system_manager.move_up_directory(3)
-print file_system_manager.list_directory_contents(3)
-print file_system_manager.list_directory_contents(3, "no_exist")
-print file_system_manager.list_directory_contents(3, "item4")
+#file_system_manager.move_up_directory(3)
+#print file_system_manager.list_directory_contents(3)
+#print file_system_manager.list_directory_contents(3, "no_exist")
+#print file_system_manager.list_directory_contents(3, "item4")
+#id_ = file_system_manager.add_client("dummy_socket_data")
+#print file_system_manager.list_directory_contents(id_)
 
 #test logging events
 #file_system_manager.log_events()

@@ -14,7 +14,7 @@ def connect_to_server_userin():
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = ('127.0.0.1', port_num)
-    print "connecting to %s on port %s" % server_address
+    print "connecting to %s on port %s\n" % server_address
     sock.connect(server_address)
 
     client_thread_pool.add_task(

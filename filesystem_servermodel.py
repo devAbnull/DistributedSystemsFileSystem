@@ -188,7 +188,7 @@ class FileSystemManager:
             return "No such directory %s" % item_name
         elif item_type == 0:
             return "Cannot list contents of %s" % item_name
-        elif item_type == 1:
+        else:
             item_list = os.listdir("./" + path)
             return_string = "Type\tPath"
             for item in item_list:
