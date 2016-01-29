@@ -1,13 +1,10 @@
 import socket
-import sys
 import threadpool
-
-from random import randint
 
 # this is a multithreaded client program that was used to test
 # the server code
 
-client_thread_pool = threadpool.ThreadPool(2)
+client_thread_pool = threadpool.ThreadPool(3)
 
 ip_address = socket.gethostbyname(socket.gethostname())
 
@@ -17,7 +14,7 @@ def connect_to_server_userin():
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = ('127.0.0.1', port_num)
-    print "connecting to %s on port %s\n" % server_address
+    print "connecting to %s on port %s" % server_address
     sock.connect(server_address)
 
     client_thread_pool.add_task(
@@ -27,8 +24,7 @@ def connect_to_server_userin():
 
     while True:
         user_in = raw_input()
-        message = generate_message( user_in )
-        print message
+        message = user_in
         sock.send( message )
 
     sock.close()

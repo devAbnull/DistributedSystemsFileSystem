@@ -89,10 +89,13 @@ class FileSystemManager:
     # Functions for interacting with clients
     #
 
+    # Adds a new client to the file system manager
+    # Returns the id of the client
     def add_client(self, connection):
         new_client_id = self.gen_client_id();
         new_client = Client(new_client_id, connection, self.root_path)
         self.active_clients.append(new_client)
+        return new_client_id
 
     def remove_client(self, client_in):
         i = 0
